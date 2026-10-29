@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "Digital Library API"
     APP_ENV: str = "development"
     DEBUG: bool = False
-    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]
+    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:5173"]
 
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://postgres:password@localhost:5432/digital_library"
