@@ -102,7 +102,7 @@ Copy `.env.example` to `.env` and fill in the values.
 | `MAX_BOOK_PDF_SIZE_MB` | `50` | Max PDF upload size |
 | `MAX_DOWNLOADS_PER_DAY` | `5` | Per-user daily download cap |
 | `MAX_DOWNLOADS_PER_MONTH` | `15` | Per-user monthly download cap |
-| `SUPERADMIN_EMAIL` | `superadmin@library.com` | Seed superadmin email |
+| `SUPERADMIN_EMAIL` | `superadmin@example.com` | Seed superadmin email |
 | `SUPERADMIN_PASSWORD` | `SuperAdmin123!` | Seed superadmin password — **change this** |
 
 Full variable list is in `.env.example`.
