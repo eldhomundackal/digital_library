@@ -58,62 +58,33 @@ digital-library-api/
 
 ```bash
 git clone <repo-url>
-cd digital-library-api
+cd digital-library-api/backend
 cp .env.example .env
 # Edit .env — set SECRET_KEY, SMTP credentials, S3 keys, etc.
 ```
 
-### 2. Start Postgres and Redis
+### 2. Start the full stack
 
 ```bash
-docker compose up postgres redis -d
+make dev
+# equivalent to: docker compose up --build
 ```
 
-### 3. Install dependencies
+This starts the API (port 8000), Postgres (5432), Redis (6379), Celery worker, and Celery beat.
+
+### 3. Run migrations (first time only)
 
 ```bash
-pip install poetry
-poetry install
+docker compose exec api alembic upgrade head
 ```
 
-### 4. Run migrations
+### 4. Seed the database (first time only)
 
 ```bash
-alembic upgrade head
-```
-
-### 5. Seed the database
-
-```bash
-python scripts/seed_superadmin.py
-python scripts/seed_countries.py
-python scripts/seed_languages.py
-```
-
-### 6. Start the API
-
-```bash
-uvicorn app.main:app --reload
+make seed
 ```
 
 API docs available at: [http://localhost:8000/docs](http://localhost:8000/docs)
-
-### 7. Start Celery workers (separate terminal)
-
-```bash
-celery -A app.tasks.celery_app worker --loglevel=info
-celery -A app.tasks.celery_app beat --loglevel=info
-```
-
----
-
-## Docker (full stack)
-
-Start everything — API, Postgres, Redis, Celery worker and beat — in one command:
-
-```bash
-docker compose up --build
-```
 
 ---
 
