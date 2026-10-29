@@ -15,6 +15,9 @@ seed:
 	$(EXEC) -e PYTHONPATH=/app python scripts/seed_languages.py
 	$(EXEC) -e PYTHONPATH=/app python scripts/sync_redis_counters.py
 
+seed-test:
+	$(EXEC) python scripts/seed_test_data.py
+
 format:
 	$(EXEC) isort app/ tests/ scripts/
 	$(EXEC) black app/ tests/ scripts/
