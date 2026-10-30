@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/api/client'
+import { useAuthStore } from '@/store/authStore'
 import type { NotificationListResponse } from '@/types/notification'
 
 interface NotificationParams {
@@ -8,13 +9,22 @@ interface NotificationParams {
   unread_only?: boolean
 }
 
+const ADMIN_ROLES = ['staff', 'admin', 'superadmin']
+
+function notificationBase(role: string | undefined): string {
+  return ADMIN_ROLES.includes(role ?? '') ? '/admin/notifications' : '/users/me/notifications'
+}
+
 export function useNotifications(params: NotificationParams = {}) {
+  const user = useAuthStore((s) => s.user)
+  const base = notificationBase(user?.role)
   return useQuery({
-    queryKey: ['notifications', params],
+    queryKey: ['notifications', user?.role, params],
     queryFn: async () => {
-      const { data } = await apiClient.get<NotificationListResponse>('/notifications/', { params })
+      const { data } = await apiClient.get<NotificationListResponse>(base, { params })
       return data
     },
+    enabled: !!user,
     retry: false,
     throwOnError: false,
   })
@@ -22,9 +32,11 @@ export function useNotifications(params: NotificationParams = {}) {
 
 export function useMarkAllRead() {
   const qc = useQueryClient()
+  const user = useAuthStore((s) => s.user)
+  const base = notificationBase(user?.role)
   return useMutation({
     mutationFn: async () => {
-      await apiClient.post('/notifications/mark-all-read/')
+      await apiClient.post(`${base}/read-all`)
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['notifications'] })
@@ -34,9 +46,11 @@ export function useMarkAllRead() {
 
 export function useMarkNotificationRead() {
   const qc = useQueryClient()
+  const user = useAuthStore((s) => s.user)
+  const base = notificationBase(user?.role)
   return useMutation({
     mutationFn: async (notificationId: string) => {
-      await apiClient.post(`/notifications/${notificationId}/read/`)
+      await apiClient.patch(`${base}/${notificationId}/read`)
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['notifications'] })
