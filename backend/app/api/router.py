@@ -25,7 +25,7 @@ from app.api.v1.admin import tags as admin_tags
 from app.api.v1.admin import users as admin_users
 from app.api.v1.admin import utils as admin_utils
 
-api_router = APIRouter()
+api_router = APIRouter(prefix="/api/v1")
 
 # Auth
 api_router.include_router(auth.router, prefix="/auth", tags=["Auth"])
