@@ -15,8 +15,8 @@ export function useLogin() {
   const { setAccessToken, setUser } = useAuthStore()
   return useMutation({
     mutationFn: async (payload: LoginRequest) => {
-      const { data } = await apiClient.post<LoginResponse>('/auth/login', payload)
-      return data
+      const { data } = await apiClient.post<{ data: LoginResponse }>('/auth/login', payload)
+      return data.data
     },
     onSuccess: (data) => {
       setAccessToken(data.access_token)
@@ -29,8 +29,8 @@ export function useLogin() {
 export function useRegister() {
   return useMutation({
     mutationFn: async (payload: RegisterRequest) => {
-      const { data } = await apiClient.post<RegisterResponse>('/auth/register', payload)
-      return data
+      const { data } = await apiClient.post<{ data: RegisterResponse }>('/auth/register', payload)
+      return data.data
     },
     onError: (err) => toast.error(getApiError(err)),
   })
@@ -39,8 +39,8 @@ export function useRegister() {
 export function useVerifyEmail() {
   return useMutation({
     mutationFn: async (payload: { email: string; otp: string }) => {
-      const { data } = await apiClient.post<VerifyEmailResponse>('/auth/verify-email', payload)
-      return data
+      const { data } = await apiClient.post<{ data: VerifyEmailResponse }>('/auth/verify-email', payload)
+      return data.data
     },
     onError: (err) => toast.error(getApiError(err)),
   })
@@ -69,8 +69,8 @@ export function useForgotPassword() {
 export function useVerifyResetOTP() {
   return useMutation({
     mutationFn: async (payload: { email: string; otp: string }) => {
-      const { data } = await apiClient.post<VerifyResetOTPResponse>('/auth/verify-reset-otp', payload)
-      return data
+      const { data } = await apiClient.post<{ data: VerifyResetOTPResponse }>('/auth/verify-reset-otp', payload)
+      return data.data
     },
     onError: (err) => toast.error(getApiError(err)),
   })
