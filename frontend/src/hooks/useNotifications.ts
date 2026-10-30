@@ -15,6 +15,8 @@ export function useNotifications(params: NotificationParams = {}) {
       const { data } = await apiClient.get<NotificationListResponse>('/notifications/', { params })
       return data
     },
+    retry: false,
+    throwOnError: false,
   })
 }
 
