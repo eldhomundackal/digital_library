@@ -6,7 +6,7 @@ export function useCategories() {
   return useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
-      const { data } = await apiClient.get<CategorySummary[]>('/utils/categories/')
+      const { data } = await apiClient.get<CategorySummary[]>('/categories')
       return data
     },
     staleTime: 30 * 60 * 1000,
@@ -17,7 +17,7 @@ export function useLanguages() {
   return useQuery({
     queryKey: ['languages'],
     queryFn: async () => {
-      const { data } = await apiClient.get<LanguageSummary[]>('/utils/languages/')
+      const { data } = await apiClient.get<LanguageSummary[]>('/utils/languages')
       return data
     },
     staleTime: 30 * 60 * 1000,
@@ -28,7 +28,7 @@ export function useCountries() {
   return useQuery({
     queryKey: ['countries'],
     queryFn: async () => {
-      const { data } = await apiClient.get<CountrySummary[]>('/utils/countries/')
+      const { data } = await apiClient.get<CountrySummary[]>('/utils/countries')
       return data
     },
     staleTime: 30 * 60 * 1000,
@@ -39,7 +39,7 @@ export function useTags(search?: string) {
   return useQuery({
     queryKey: ['tags', search],
     queryFn: async () => {
-      const { data } = await apiClient.get<TagSummary[]>('/utils/tags/', {
+      const { data } = await apiClient.get<TagSummary[]>('/tags', {
         params: search ? { search } : undefined,
       })
       return data
