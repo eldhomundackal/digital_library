@@ -11,6 +11,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000,
+      throwOnError: false,
       retry: (failureCount, error) => {
         if (axios.isAxiosError(error)) {
           const status = error.response?.status
