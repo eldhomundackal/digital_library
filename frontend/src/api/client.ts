@@ -59,6 +59,27 @@ apiClient.interceptors.response.use(
   }
 )
 
+// Typed wrappers that unwrap the backend's { data: T, message: string } envelope.
+// Use these in every hook instead of apiClient directly.
+export const api = {
+  get: async <T>(url: string, config?: Parameters<typeof apiClient.get>[1]): Promise<T> => {
+    const { data } = await apiClient.get<{ data: T }>(url, config)
+    return data.data
+  },
+  post: async <T>(url: string, body?: unknown, config?: Parameters<typeof apiClient.post>[2]): Promise<T> => {
+    const { data } = await apiClient.post<{ data: T }>(url, body, config)
+    return data.data
+  },
+  patch: async <T>(url: string, body?: unknown, config?: Parameters<typeof apiClient.patch>[2]): Promise<T> => {
+    const { data } = await apiClient.patch<{ data: T }>(url, body, config)
+    return data.data
+  },
+  delete: async <T = void>(url: string, config?: Parameters<typeof apiClient.delete>[1]): Promise<T> => {
+    const { data } = await apiClient.delete<{ data: T }>(url, config)
+    return data.data
+  },
+}
+
 export function getApiError(error: unknown): string {
   if (axios.isAxiosError(error)) {
     return error.response?.data?.message ?? 'Something went wrong.'

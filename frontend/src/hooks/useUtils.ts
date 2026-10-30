@@ -1,14 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import { apiClient } from '@/api/client'
+import { api } from '@/api/client'
 import type { CategorySummary, CountrySummary, LanguageSummary, TagSummary } from '@/types/common'
 
 export function useCategories() {
   return useQuery({
     queryKey: ['categories'],
-    queryFn: async () => {
-      const { data } = await apiClient.get<CategorySummary[]>('/categories')
-      return data
-    },
+    queryFn: () => api.get<CategorySummary[]>('/categories'),
     staleTime: 30 * 60 * 1000,
   })
 }
@@ -16,10 +13,7 @@ export function useCategories() {
 export function useLanguages() {
   return useQuery({
     queryKey: ['languages'],
-    queryFn: async () => {
-      const { data } = await apiClient.get<LanguageSummary[]>('/utils/languages')
-      return data
-    },
+    queryFn: () => api.get<LanguageSummary[]>('/utils/languages'),
     staleTime: 30 * 60 * 1000,
   })
 }
@@ -27,10 +21,7 @@ export function useLanguages() {
 export function useCountries() {
   return useQuery({
     queryKey: ['countries'],
-    queryFn: async () => {
-      const { data } = await apiClient.get<CountrySummary[]>('/utils/countries')
-      return data
-    },
+    queryFn: () => api.get<CountrySummary[]>('/utils/countries'),
     staleTime: 30 * 60 * 1000,
   })
 }
@@ -38,12 +29,7 @@ export function useCountries() {
 export function useTags(search?: string) {
   return useQuery({
     queryKey: ['tags', search],
-    queryFn: async () => {
-      const { data } = await apiClient.get<TagSummary[]>('/tags', {
-        params: search ? { search } : undefined,
-      })
-      return data
-    },
+    queryFn: () => api.get<TagSummary[]>('/tags', { params: search ? { search } : undefined }),
     staleTime: 10 * 60 * 1000,
   })
 }

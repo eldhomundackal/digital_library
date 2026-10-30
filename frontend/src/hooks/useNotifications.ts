@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { apiClient } from '@/api/client'
+import { api } from '@/api/client'
 import { useAuthStore } from '@/store/authStore'
 import type { NotificationListResponse } from '@/types/notification'
 
@@ -20,10 +20,7 @@ export function useNotifications(params: NotificationParams = {}) {
   const base = notificationBase(user?.role)
   return useQuery({
     queryKey: ['notifications', user?.role, params],
-    queryFn: async () => {
-      const { data } = await apiClient.get<NotificationListResponse>(base, { params })
-      return data
-    },
+    queryFn: () => api.get<NotificationListResponse>(base, { params }),
     enabled: !!user,
     retry: false,
     throwOnError: false,
@@ -35,9 +32,7 @@ export function useMarkAllRead() {
   const user = useAuthStore((s) => s.user)
   const base = notificationBase(user?.role)
   return useMutation({
-    mutationFn: async () => {
-      await apiClient.post(`${base}/read-all`)
-    },
+    mutationFn: () => api.post(`${base}/read-all`),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['notifications'] })
     },
@@ -49,9 +44,7 @@ export function useMarkNotificationRead() {
   const user = useAuthStore((s) => s.user)
   const base = notificationBase(user?.role)
   return useMutation({
-    mutationFn: async (notificationId: string) => {
-      await apiClient.patch(`${base}/${notificationId}/read`)
-    },
+    mutationFn: (notificationId: string) => api.patch(`${base}/${notificationId}/read`),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['notifications'] })
     },

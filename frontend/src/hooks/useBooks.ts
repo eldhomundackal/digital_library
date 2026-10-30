@@ -1,28 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { apiClient, getApiError } from '@/api/client'
+import { api, apiClient, getApiError } from '@/api/client'
 import type { BookDetailResponse, BookFilters, BookListItem, CreateBookPayload } from '@/types/book'
 import type { PaginatedResponse } from '@/types/common'
 
 export function useBooks(filters: BookFilters = {}) {
   return useQuery({
     queryKey: ['books', filters],
-    queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<BookListItem>>('/books/', {
-        params: filters,
-      })
-      return data
-    },
+    queryFn: () => api.get<PaginatedResponse<BookListItem>>('/books/', { params: filters }),
   })
 }
 
 export function useBook(bookId: string) {
   return useQuery({
     queryKey: ['book', bookId],
-    queryFn: async () => {
-      const { data } = await apiClient.get<BookDetailResponse>(`/books/${bookId}/`)
-      return data
-    },
+    queryFn: () => api.get<BookDetailResponse>(`/books/${bookId}/`),
     enabled: !!bookId,
   })
 }
@@ -45,11 +37,10 @@ export function useUploadBook() {
       form.append('authors', JSON.stringify(payload.authors))
       form.append('thumbnail', payload.thumbnail)
       form.append('pdf_file', payload.pdf_file)
-      const { data } = await apiClient.post<BookDetailResponse>('/publisher/books/', form, {
+      return api.post<BookDetailResponse>('/publisher/books/', form, {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: payload.onProgress,
       })
-      return data
     },
     onSuccess: () => {
       toast.success('Book uploaded successfully.')
@@ -62,21 +53,14 @@ export function useUploadBook() {
 export function usePublisherBooks(filters: BookFilters = {}) {
   return useQuery({
     queryKey: ['publisher-books', filters],
-    queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<BookListItem>>('/publisher/books/', {
-        params: filters,
-      })
-      return data
-    },
+    queryFn: () => api.get<PaginatedResponse<BookListItem>>('/publisher/books/', { params: filters }),
   })
 }
 
 export function useDeleteBook() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (bookId: string) => {
-      await apiClient.delete(`/publisher/books/${bookId}/`)
-    },
+    mutationFn: (bookId: string) => apiClient.delete(`/publisher/books/${bookId}/`),
     onSuccess: () => {
       toast.success('Book deleted.')
       void qc.invalidateQueries({ queryKey: ['publisher-books'] })

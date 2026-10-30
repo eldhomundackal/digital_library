@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { apiClient, getApiError } from '@/api/client'
+import { api, apiClient, getApiError } from '@/api/client'
 import { useAuthStore } from '@/store/authStore'
 import type {
   LoginRequest,
@@ -14,10 +14,7 @@ import type {
 export function useLogin() {
   const { setAccessToken, setUser } = useAuthStore()
   return useMutation({
-    mutationFn: async (payload: LoginRequest) => {
-      const { data } = await apiClient.post<{ data: LoginResponse }>('/auth/login', payload)
-      return data.data
-    },
+    mutationFn: (payload: LoginRequest) => api.post<LoginResponse>('/auth/login', payload),
     onSuccess: (data) => {
       setAccessToken(data.access_token)
       setUser(data.user)
@@ -28,20 +25,15 @@ export function useLogin() {
 
 export function useRegister() {
   return useMutation({
-    mutationFn: async (payload: RegisterRequest) => {
-      const { data } = await apiClient.post<{ data: RegisterResponse }>('/auth/register', payload)
-      return data.data
-    },
+    mutationFn: (payload: RegisterRequest) => api.post<RegisterResponse>('/auth/register', payload),
     onError: (err) => toast.error(getApiError(err)),
   })
 }
 
 export function useVerifyEmail() {
   return useMutation({
-    mutationFn: async (payload: { email: string; otp: string }) => {
-      const { data } = await apiClient.post<{ data: VerifyEmailResponse }>('/auth/verify-email', payload)
-      return data.data
-    },
+    mutationFn: (payload: { email: string; otp: string }) =>
+      api.post<VerifyEmailResponse>('/auth/verify-email', payload),
     onError: (err) => toast.error(getApiError(err)),
   })
 }
@@ -68,10 +60,8 @@ export function useForgotPassword() {
 
 export function useVerifyResetOTP() {
   return useMutation({
-    mutationFn: async (payload: { email: string; otp: string }) => {
-      const { data } = await apiClient.post<{ data: VerifyResetOTPResponse }>('/auth/verify-reset-otp', payload)
-      return data.data
-    },
+    mutationFn: (payload: { email: string; otp: string }) =>
+      api.post<VerifyResetOTPResponse>('/auth/verify-reset-otp', payload),
     onError: (err) => toast.error(getApiError(err)),
   })
 }
