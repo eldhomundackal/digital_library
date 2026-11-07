@@ -91,7 +91,7 @@ async def get_notifications(
     from app.services.notification_service import NotificationService
 
     service = NotificationService(db)
-    result = await service.get_my_notifications(current_user, params)
+    result = await service.get_my_notifications(current_user, {}, params)
     return SuccessResponse(data=result)
 
 

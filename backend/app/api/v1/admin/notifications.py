@@ -19,7 +19,7 @@ async def get_admin_notifications(
 ) -> SuccessResponse:
     """Get notifications for the current admin/staff user."""
     service = NotificationService(db)
-    result = await service.get_my_notifications(current_user, {})
+    result = await service.get_my_notifications(current_user, {}, {})
     return SuccessResponse(data=result)
 
 
