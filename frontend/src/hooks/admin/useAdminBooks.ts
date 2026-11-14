@@ -9,7 +9,7 @@ interface AdminBooksParams {
   limit?: number
   search?: string
   status?: string
-  category_id?: number
+  category_id?: string
 }
 
 export function useAdminBooks(params: AdminBooksParams = {}) {

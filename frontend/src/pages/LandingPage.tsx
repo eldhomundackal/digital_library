@@ -43,8 +43,8 @@ export default function LandingPage() {
             <div className="flex flex-wrap gap-2">
               {categories.map((cat) => (
                 <Link
-                  key={cat.id}
-                  to={`/books?category_id=${cat.id}`}
+                  key={cat.category_id}
+                  to={`/books?category_id=${cat.category_id}`}
                   className="rounded-pill border border-primary/20 bg-white px-4 py-2 text-sm font-medium text-primary hover:bg-primary hover:text-white transition-colors"
                 >
                   {cat.name}

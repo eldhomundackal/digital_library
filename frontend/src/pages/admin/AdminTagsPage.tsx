@@ -35,9 +35,9 @@ export default function AdminTagsPage() {
       ) : (
         <ul className="divide-y rounded-card border border-gray-200 bg-white">
           {data?.map((tag) => (
-            <li key={tag.id} className="flex items-center justify-between px-4 py-3">
+            <li key={tag.tag_id} className="flex items-center justify-between px-4 py-3">
               <span className="font-medium text-gray-900">{tag.name}</span>
-              <Button size="sm" variant="danger" loading={del.isPending} onClick={() => del.mutate(tag.id)}>
+              <Button size="sm" variant="danger" loading={del.isPending} onClick={() => del.mutate(tag.tag_id)}>
                 Delete
               </Button>
             </li>

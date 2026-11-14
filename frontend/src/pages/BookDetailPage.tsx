@@ -99,7 +99,7 @@ export default function BookDetailPage() {
             <Badge variant="muted">{book.category.name}</Badge>
             <Badge variant="info">{book.language.name}</Badge>
             {book.tags.map((t) => (
-              <Badge key={t.id} variant="default">{t.name}</Badge>
+              <Badge key={t.tag_id} variant="default">{t.name}</Badge>
             ))}
           </div>
 

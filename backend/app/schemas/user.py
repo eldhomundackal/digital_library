@@ -47,11 +47,11 @@ class UpdateReaderProfileRequest(BaseModel):
     bio: str | None = None
     date_of_birth: str | None = None
     gender: str | None = None
-    country_id: int | None = None
-    city_id: int | None = None
-    language_id: int | None = None
-    preferred_category_ids: list[int] | None = None
-    preferred_tag_ids: list[int] | None = None
+    country_id: str | None = None
+    city_id: str | None = None
+    language_id: str | None = None
+    preferred_category_ids: list[str] | None = None
+    preferred_tag_ids: list[str] | None = None
     occupation: str | None = None
 
 

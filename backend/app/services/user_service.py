@@ -10,6 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.password import hash_password, verify_password
 from app.db.models.publisher import PublisherProfile, StaffPermission, StaffProfile
 from app.db.models.user import ReaderProfile, User
+from app.db.models.utils import City, Country, Language
+from app.db.models.category import Category, Tag
 from app.schemas.user import (
     AvatarResponse,
     CreateStaffRequest,
@@ -171,14 +173,38 @@ class UserService:
                 "bio",
                 "date_of_birth",
                 "gender",
-                "country_id",
-                "city_id",
-                "language_id",
                 "occupation",
             ):
                 value = getattr(payload, field, None)
                 if value is not None:
                     setattr(profile, field, value)
+
+            if payload.country_id is not None:
+                country_result = await self.db.execute(
+                    select(Country).where(Country.uuid == payload.country_id)
+                )
+                country = country_result.scalar_one_or_none()
+                if not country:
+                    raise HTTPException(status_code=400, detail="Invalid country.")
+                profile.country_id = country.id
+
+            if payload.city_id is not None:
+                city_result = await self.db.execute(
+                    select(City).where(City.uuid == payload.city_id)
+                )
+                city = city_result.scalar_one_or_none()
+                if not city:
+                    raise HTTPException(status_code=400, detail="Invalid city.")
+                profile.city_id = city.id
+
+            if payload.language_id is not None:
+                lang_result = await self.db.execute(
+                    select(Language).where(Language.uuid == payload.language_id)
+                )
+                lang = lang_result.scalar_one_or_none()
+                if not lang:
+                    raise HTTPException(status_code=400, detail="Invalid language.")
+                profile.language_id = lang.id
 
             if payload.preferred_category_ids is not None:
                 from app.db.models.user import ReaderPreferredCategory
@@ -188,9 +214,15 @@ class UserService:
                         ReaderPreferredCategory
                     ).where(ReaderPreferredCategory.reader_id == profile.id)
                 )
-                for cat_id in payload.preferred_category_ids:
+                for cat_uuid in payload.preferred_category_ids:
+                    cat_result = await self.db.execute(
+                        select(Category).where(Category.uuid == cat_uuid)
+                    )
+                    cat = cat_result.scalar_one_or_none()
+                    if not cat:
+                        raise HTTPException(status_code=400, detail=f"Invalid category: {cat_uuid}.")
                     self.db.add(
-                        ReaderPreferredCategory(reader_id=profile.id, category_id=cat_id)
+                        ReaderPreferredCategory(reader_id=profile.id, category_id=cat.id)
                     )
 
             if payload.preferred_tag_ids is not None:
@@ -201,9 +233,15 @@ class UserService:
                         ReaderPreferredTag
                     ).where(ReaderPreferredTag.reader_id == profile.id)
                 )
-                for tag_id in payload.preferred_tag_ids:
+                for tag_uuid in payload.preferred_tag_ids:
+                    tag_result = await self.db.execute(
+                        select(Tag).where(Tag.uuid == tag_uuid)
+                    )
+                    tag = tag_result.scalar_one_or_none()
+                    if not tag:
+                        raise HTTPException(status_code=400, detail=f"Invalid tag: {tag_uuid}.")
                     self.db.add(
-                        ReaderPreferredTag(reader_id=profile.id, tag_id=tag_id)
+                        ReaderPreferredTag(reader_id=profile.id, tag_id=tag.id)
                     )
 
             profile.profile_completion = self._calculate_profile_completion(profile)

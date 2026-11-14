@@ -21,9 +21,9 @@ router = APIRouter(prefix="/books", tags=["Books"])
 @router.get("")
 async def list_books(
     search: str | None = Query(default=None),
-    category_id: int | None = Query(default=None),
-    tag_id: int | None = Query(default=None),
-    language_id: int | None = Query(default=None),
+    category_id: str | None = Query(default=None),
+    tag_id: str | None = Query(default=None),
+    language_id: str | None = Query(default=None),
     publication_year: int | None = Query(default=None),
     sort_by: str = Query(default="latest"),
     params: PaginationParams = Depends(),

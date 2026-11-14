@@ -36,8 +36,8 @@ export default function UploadBookPage() {
     )
   }
 
-  const categoryOptions = (categories ?? []).map((c) => ({ value: c.id, label: c.name }))
-  const languageOptions = (languages ?? []).map((l) => ({ value: l.id, label: l.name }))
+  const categoryOptions = (categories ?? []).map((c) => ({ value: c.category_id, label: c.name }))
+  const languageOptions = (languages ?? []).map((l) => ({ value: l.language_id, label: l.name }))
 
   return (
     <div className="max-w-2xl">
@@ -65,7 +65,7 @@ export default function UploadBookPage() {
                 placeholder="Select category"
                 error={errors.category_id?.message}
                 value={field.value ?? ''}
-                onChange={(e) => field.onChange(Number(e.target.value))}
+                onChange={(e) => field.onChange(e.target.value)}
               />
             )}
           />
@@ -79,7 +79,7 @@ export default function UploadBookPage() {
                 placeholder="Select language"
                 error={errors.language_id?.message}
                 value={field.value ?? ''}
-                onChange={(e) => field.onChange(Number(e.target.value))}
+                onChange={(e) => field.onChange(e.target.value)}
               />
             )}
           />

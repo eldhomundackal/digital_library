@@ -37,8 +37,8 @@ export const reviewSchema = z.object({
 export const uploadBookSchema = z.object({
   title:            z.string().min(1, 'Title is required'),
   description:      z.string().min(1, 'Description is required'),
-  category_id:      z.number().min(1, 'Select a category'),
-  language_id:      z.number().min(1, 'Select a language'),
+  category_id:      z.string().min(1, 'Select a category'),
+  language_id:      z.string().min(1, 'Select a language'),
   version_label:    z.string().min(1, 'Version label is required (e.g. 1.0)'),
   isbn:             z.string().optional(),
   page_count:       z.number().positive().optional(),

@@ -24,19 +24,20 @@ export interface CitySummary {
 }
 
 export interface LanguageSummary {
-  id: number
+  language_id: string
   name: string
-  code: string
+  iso_code: string
 }
 
 export interface CategorySummary {
-  id: number
+  category_id: string
   name: string
   slug: string
 }
 
 export interface TagSummary {
-  id: number
+  tag_id: string
   name: string
   slug: string
+  status?: string | null
 }

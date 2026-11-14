@@ -56,13 +56,13 @@ class CreateBookRequest(BaseModel):
 
     title: str
     description: str
-    category_id: int
-    language_id: int
+    category_id: str
+    language_id: str
     page_count: int | None = None
     publication_year: int | None = None
     isbn: str | None = None
     version_label: str
-    tag_ids: list[int] = []
+    tag_ids: list[str] = []
     new_tags: list[str] = []
     authors: list[AuthorInput]
 

@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models.book import Book, BookAuthor, BookTag, BookVersion, BookVersionActionLog
 from app.db.models.category import Category, Tag
 from app.db.models.author import Author
+from app.db.models.utils import Language
 from app.db.models.publisher import PublisherProfile
 from app.db.models.user import User
 from app.schemas.book import (
@@ -61,6 +62,36 @@ class BookService:
         if not pub:
             raise HTTPException(status_code=404, detail="Publisher profile not found.")
         return pub
+
+    async def _resolve_category(self, category_uuid: str) -> int:
+        """Resolve category UUID to integer PK or raise 400."""
+        result = await self.db.execute(
+            select(Category).where(Category.uuid == category_uuid, Category.is_active.is_(True))
+        )
+        cat = result.scalar_one_or_none()
+        if not cat:
+            raise HTTPException(status_code=400, detail="Invalid category.")
+        return cat.id
+
+    async def _resolve_language(self, language_uuid: str) -> int:
+        """Resolve language UUID to integer PK or raise 400."""
+        result = await self.db.execute(
+            select(Language).where(Language.uuid == language_uuid, Language.is_active.is_(True))
+        )
+        lang = result.scalar_one_or_none()
+        if not lang:
+            raise HTTPException(status_code=400, detail="Invalid language.")
+        return lang.id
+
+    async def _resolve_tag(self, tag_uuid: str) -> int:
+        """Resolve tag UUID to integer PK or raise 400."""
+        result = await self.db.execute(
+            select(Tag).where(Tag.uuid == tag_uuid)
+        )
+        tag = result.scalar_one_or_none()
+        if not tag:
+            raise HTTPException(status_code=400, detail=f"Invalid tag: {tag_uuid}.")
+        return tag.id
 
     async def _build_book_detail(
         self, book: Book, version: BookVersion, user: User | None
@@ -200,11 +231,14 @@ class BookService:
 
         pub = await self._get_publisher(user)
 
+        category_pk = await self._resolve_category(payload.category_id)
+        language_pk = await self._resolve_language(payload.language_id)
+
         book = Book(
             number=book_number,
             publisher_id=pub.id,
-            category_id=payload.category_id,
-            language_id=payload.language_id,
+            category_id=category_pk,
+            language_id=language_pk,
             title=payload.title,
         )
         self.db.add(book)
@@ -257,8 +291,9 @@ class BookService:
                 await self.db.flush()
                 self.db.add(BookAuthor(book_id=book.id, author_id=new_author.id))
 
-        for tag_id in payload.tag_ids:
-            self.db.add(BookTag(book_id=book.id, tag_id=tag_id))
+        for tag_uuid in payload.tag_ids:
+            tag_pk = await self._resolve_tag(tag_uuid)
+            self.db.add(BookTag(book_id=book.id, tag_id=tag_pk))
 
         for tag_name in payload.new_tags:
             tag_slug = slugify(tag_name)
@@ -484,9 +519,9 @@ class BookService:
         if payload.publication_year is not None:
             version.publication_year = payload.publication_year
         if payload.category_id:
-            book.category_id = payload.category_id
+            book.category_id = await self._resolve_category(payload.category_id)
         if payload.language_id:
-            book.language_id = payload.language_id
+            book.language_id = await self._resolve_language(payload.language_id)
 
         if thumbnail:
             validate_file(thumbnail, "thumbnail")
@@ -536,9 +571,19 @@ class BookService:
         )
 
         if filters.get("category_id"):
-            query = query.where(Book.category_id == filters["category_id"])
+            cat_result = await self.db.execute(
+                select(Category).where(Category.uuid == filters["category_id"])
+            )
+            cat = cat_result.scalar_one_or_none()
+            if cat:
+                query = query.where(Book.category_id == cat.id)
         if filters.get("language_id"):
-            query = query.where(Book.language_id == filters["language_id"])
+            lang_result = await self.db.execute(
+                select(Language).where(Language.uuid == filters["language_id"])
+            )
+            lang = lang_result.scalar_one_or_none()
+            if lang:
+                query = query.where(Book.language_id == lang.id)
         if filters.get("publication_year"):
             query = query.where(BookVersion.publication_year == filters["publication_year"])
         if filters.get("search"):
@@ -550,9 +595,14 @@ class BookService:
                 )
             )
         if filters.get("tag_id"):
-            query = query.join(
-                BookTag, BookTag.book_id == Book.id
-            ).where(BookTag.tag_id == filters["tag_id"])
+            tag_result = await self.db.execute(
+                select(Tag).where(Tag.uuid == filters["tag_id"])
+            )
+            tag = tag_result.scalar_one_or_none()
+            if tag:
+                query = query.join(
+                    BookTag, BookTag.book_id == Book.id
+                ).where(BookTag.tag_id == tag.id)
 
         sort_by = filters.get("sort_by", "latest")
         if sort_by == "popular":

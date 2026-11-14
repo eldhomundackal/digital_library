@@ -53,9 +53,9 @@ export interface PublisherBrief {
 
 export interface BookFilters {
   search?: string
-  category_id?: number
-  tag_id?: number
-  language_id?: number
+  category_id?: string
+  tag_id?: string
+  language_id?: string
   publication_year?: number
   sort_by?: 'latest' | 'popular' | 'rating'
   page?: number
@@ -65,13 +65,13 @@ export interface BookFilters {
 export interface CreateBookPayload {
   title: string
   description: string
-  category_id: number
-  language_id: number
+  category_id: string
+  language_id: string
   version_label: string
   isbn?: string
   page_count?: number
   publication_year?: number
-  tag_ids: number[]
+  tag_ids: string[]
   new_tags: string[]
   authors: { name: string; bio?: string }[]
   thumbnail: File

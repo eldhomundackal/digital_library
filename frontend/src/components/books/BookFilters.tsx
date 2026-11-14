@@ -40,15 +40,15 @@ export function BookFiltersPanel({ filters, onChange, categories = [], languages
         className="w-48"
       />
       <Select
-        options={[{ value: '', label: 'All Categories' }, ...categories.map((c) => ({ value: c.id, label: c.name }))]}
+        options={[{ value: '', label: 'All Categories' }, ...categories.map((c) => ({ value: c.category_id, label: c.name }))]}
         value={filters.category_id ?? ''}
-        onChange={(e) => onChange({ ...filters, category_id: e.target.value ? Number(e.target.value) : undefined, page: 1 })}
+        onChange={(e) => onChange({ ...filters, category_id: e.target.value || undefined, page: 1 })}
         className="w-44"
       />
       <Select
-        options={[{ value: '', label: 'All Languages' }, ...languages.map((l) => ({ value: l.id, label: l.name }))]}
+        options={[{ value: '', label: 'All Languages' }, ...languages.map((l) => ({ value: l.language_id, label: l.name }))]}
         value={filters.language_id ?? ''}
-        onChange={(e) => onChange({ ...filters, language_id: e.target.value ? Number(e.target.value) : undefined, page: 1 })}
+        onChange={(e) => onChange({ ...filters, language_id: e.target.value || undefined, page: 1 })}
         className="w-40"
       />
       <Select

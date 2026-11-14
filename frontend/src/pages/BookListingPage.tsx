@@ -10,8 +10,8 @@ export default function BookListingPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [filters, setFilters] = useState<BookFilters>({
     search: searchParams.get('search') ?? undefined,
-    category_id: searchParams.get('category_id') ? Number(searchParams.get('category_id')) : undefined,
-    language_id: searchParams.get('language_id') ? Number(searchParams.get('language_id')) : undefined,
+    category_id: searchParams.get('category_id') ?? undefined,
+    language_id: searchParams.get('language_id') ?? undefined,
     sort_by: (searchParams.get('sort_by') as BookFilters['sort_by']) ?? undefined,
     page: 1,
     limit: 20,

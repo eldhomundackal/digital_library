@@ -35,9 +35,9 @@ export default function AdminCategoriesPage() {
       ) : (
         <ul className="divide-y rounded-card border border-gray-200 bg-white">
           {data?.map((cat) => (
-            <li key={cat.id} className="flex items-center justify-between px-4 py-3">
+            <li key={cat.category_id} className="flex items-center justify-between px-4 py-3">
               <span className="font-medium text-gray-900">{cat.name}</span>
-              <Button size="sm" variant="danger" loading={del.isPending} onClick={() => del.mutate(cat.id)}>
+              <Button size="sm" variant="danger" loading={del.isPending} onClick={() => del.mutate(cat.category_id)}>
                 Delete
               </Button>
             </li>
