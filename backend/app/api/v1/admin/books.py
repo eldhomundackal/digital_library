@@ -25,7 +25,8 @@ async def list_books(
     """List all books across all statuses."""
     storage = get_storage_provider()
     service = BookService(db, storage, redis)
-    result = await service.list_approved_books(status, None, None, None, params)
+    filters = {"status": status} if status else {}
+    result = await service.list_approved_books(filters, params.page, params.limit)
     return SuccessResponse(data=result)
 
 
