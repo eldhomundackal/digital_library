@@ -83,7 +83,7 @@ class AdminService:
 
         kyc_pending = (
             await self.db.execute(
-                select(func.count(KYC.id)).where(KYC.overall_status == "PENDING")
+                select(func.count(KYCApplication.id)).where(KYCApplication.overall_status == "PENDING")
             )
         ).scalar() or 0
 

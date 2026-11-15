@@ -16,6 +16,7 @@ from app.api.v1 import reviews
 from app.api.v1.admin import activity as admin_activity
 from app.api.v1.admin import analytics as admin_analytics
 from app.api.v1.admin import authors as admin_authors
+from app.api.v1.admin import dashboard as admin_dashboard
 from app.api.v1.admin import books as admin_books
 from app.api.v1.admin import categories as admin_categories
 from app.api.v1.admin import kyc as admin_kyc
@@ -59,4 +60,5 @@ api_router.include_router(admin_authors.router)
 api_router.include_router(admin_reviews.router)
 api_router.include_router(admin_analytics.router)
 api_router.include_router(admin_activity.router)
+api_router.include_router(admin_dashboard.router)
 api_router.include_router(admin_notifications.router)

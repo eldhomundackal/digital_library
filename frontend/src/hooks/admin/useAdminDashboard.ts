@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { apiClient } from '@/api/client'
+import { api } from '@/api/client'
 import type {
   ActivityFeedItem,
   AdminDashboardStats,
@@ -11,45 +11,27 @@ import type { PaginatedResponse } from '@/types/common'
 export function useAdminStats() {
   return useQuery({
     queryKey: ['admin', 'stats'],
-    queryFn: async () => {
-      const { data } = await apiClient.get<AdminDashboardStats>('/admin/dashboard/stats/')
-      return data
-    },
+    queryFn: () => api.get<AdminDashboardStats>('/admin/dashboard/stats/'),
   })
 }
 
 export function usePendingActions() {
   return useQuery({
     queryKey: ['admin', 'pending-actions'],
-    queryFn: async () => {
-      const { data } = await apiClient.get<PendingAction[]>('/admin/dashboard/pending-actions/')
-      return data
-    },
+    queryFn: () => api.get<PendingAction[]>('/admin/dashboard/pending-actions/'),
   })
 }
 
 export function useActivityFeed(page = 1, limit = 20) {
   return useQuery({
     queryKey: ['admin', 'activity', page],
-    queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<ActivityFeedItem>>(
-        '/admin/activity/',
-        { params: { page, limit } },
-      )
-      return data
-    },
+    queryFn: () => api.get<PaginatedResponse<ActivityFeedItem>>('/admin/activity/', { params: { page, limit } }),
   })
 }
 
 export function useAuditLog(page = 1, limit = 20) {
   return useQuery({
     queryKey: ['admin', 'audit', page],
-    queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<AuditLogItem>>(
-        '/admin/audit/',
-        { params: { page, limit } },
-      )
-      return data
-    },
+    queryFn: () => api.get<PaginatedResponse<AuditLogItem>>('/admin/audit/', { params: { page, limit } }),
   })
 }
