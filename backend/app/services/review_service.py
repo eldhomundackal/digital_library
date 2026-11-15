@@ -51,6 +51,8 @@ class ReviewService:
         user_summary = UserSummary(
             user_id=str(user.uuid),
             email=user.email,
+            role=user.role,
+            is_first_login=user.is_first_login,
         )
 
         reply_responses = []
@@ -65,6 +67,8 @@ class ReviewService:
                     user=UserSummary(
                         user_id=str(reply_user.uuid),
                         email=reply_user.email,
+                        role=reply_user.role,
+                        is_first_login=reply_user.is_first_login,
                     ),
                     comment=reply.comment,
                     is_publisher_response=reply.is_publisher_response,
