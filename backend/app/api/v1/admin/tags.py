@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.dependencies import get_db, require_roles
+from app.core.dependencies import get_db, require_roles, get_redis
 from app.schemas.common import SuccessResponse
 from app.services.book_service import BookService
 from app.storage.factory import get_storage_provider
@@ -25,10 +25,11 @@ class UpdateTagRequest(BaseModel):
 async def list_all_tags(
     current_user=Depends(require_roles(*_STAFF_ROLES)),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis)
 ) -> SuccessResponse:
     """List all tags including PENDING ones."""
     storage = get_storage_provider()
-    service = BookService(db, storage)
+    service = BookService(db, storage, redis)
     result = await service.list_approved_tags()
     return SuccessResponse(data=result)
 
@@ -38,10 +39,11 @@ async def approve_tag(
     tag_id: str,
     current_user=Depends(require_roles(*_STAFF_ROLES)),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis)
 ) -> SuccessResponse:
     """Approve a pending tag."""
     storage = get_storage_provider()
-    service = BookService(db, storage)
+    service = BookService(db, storage, redis)
     await service.manage_tag(tag_id, "approve", current_user)
     return SuccessResponse(data={"message": "Tag approved."})
 
@@ -51,10 +53,11 @@ async def reject_tag(
     tag_id: str,
     current_user=Depends(require_roles(*_STAFF_ROLES)),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis)
 ) -> SuccessResponse:
     """Reject a pending tag."""
     storage = get_storage_provider()
-    service = BookService(db, storage)
+    service = BookService(db, storage, redis)
     await service.manage_tag(tag_id, "reject", current_user)
     return SuccessResponse(data={"message": "Tag rejected."})
 
@@ -65,10 +68,11 @@ async def update_tag(
     payload: UpdateTagRequest,
     current_user=Depends(require_roles(*_STAFF_ROLES)),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis)
 ) -> SuccessResponse:
     """Edit a tag's name or slug."""
     storage = get_storage_provider()
-    service = BookService(db, storage)
+    service = BookService(db, storage, redis)
     await service.manage_tag(
         tag_id,
         "update",
@@ -84,9 +88,10 @@ async def deactivate_tag(
     tag_id: str,
     current_user=Depends(require_roles(*_STAFF_ROLES)),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis)
 ) -> SuccessResponse:
     """Soft-deactivate a tag."""
     storage = get_storage_provider()
-    service = BookService(db, storage)
+    service = BookService(db, storage,redis)
     await service.manage_tag(tag_id, "deactivate", current_user)
     return SuccessResponse(data={"message": "Tag deactivated."})
