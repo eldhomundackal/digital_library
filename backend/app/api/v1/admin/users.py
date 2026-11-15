@@ -97,7 +97,27 @@ async def update_user(
     return SuccessResponse(data={"message": "User updated."})
 
 
-@router.post("/{user_id}/activate")
+@router.patch("/{user_id}/role")
+async def change_user_role(
+    user_id: str,
+    payload: dict,
+    current_user=Depends(require_roles(*_ADMIN_ROLES)),
+    db: AsyncSession = Depends(get_db),
+) -> SuccessResponse:
+    """Change a user's role."""
+    result = await db.execute(select(User).where(User.uuid == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found.")
+    role = payload.get("role")
+    if not role:
+        raise HTTPException(status_code=422, detail="role is required.")
+    user.role = role
+    await db.commit()
+    return SuccessResponse(data={"message": "Role updated."})
+
+
+@router.post("/{user_id}/reactivate")
 async def activate_user(
     user_id: str,
     current_user=Depends(require_roles(*_ADMIN_ROLES)),
