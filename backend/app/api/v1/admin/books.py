@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.dependencies import PaginationParams, get_db, require_roles
+from app.core.dependencies import PaginationParams, get_db, get_redis, require_roles
 from app.schemas.book import RejectBookRequest
 from app.schemas.common import SuccessResponse
 from app.services.book_service import BookService
@@ -20,10 +20,11 @@ async def list_books(
     params: PaginationParams = Depends(),
     current_user=Depends(require_roles(*_STAFF_ROLES)),
     db: AsyncSession = Depends(get_db),
+    redis=Depends(get_redis),
 ) -> SuccessResponse:
     """List all books across all statuses."""
     storage = get_storage_provider()
-    service = BookService(db, storage)
+    service = BookService(db, storage, redis)
     result = await service.list_approved_books(status, None, None, None, params)
     return SuccessResponse(data=result)
 
@@ -33,10 +34,11 @@ async def get_book(
     book_id: str,
     current_user=Depends(require_roles(*_STAFF_ROLES)),
     db: AsyncSession = Depends(get_db),
+    redis=Depends(get_redis),
 ) -> SuccessResponse:
     """Get full book detail."""
     storage = get_storage_provider()
-    service = BookService(db, storage)
+    service = BookService(db, storage, redis)
     result = await service.get_book_detail(book_id, current_user)
     return SuccessResponse(data=result)
 
@@ -46,10 +48,11 @@ async def approve_book(
     book_id: str,
     current_user=Depends(require_roles(*_STAFF_ROLES)),
     db: AsyncSession = Depends(get_db),
+    redis=Depends(get_redis),
 ) -> SuccessResponse:
     """Approve a PENDING book."""
     storage = get_storage_provider()
-    service = BookService(db, storage)
+    service = BookService(db, storage, redis)
     await service.approve_book(book_id, current_user)
     return SuccessResponse(data={"message": "Book approved."})
 
@@ -60,9 +63,10 @@ async def reject_book(
     payload: RejectBookRequest,
     current_user=Depends(require_roles(*_STAFF_ROLES)),
     db: AsyncSession = Depends(get_db),
+    redis=Depends(get_redis),
 ) -> SuccessResponse:
     """Reject a PENDING book with a reason."""
     storage = get_storage_provider()
-    service = BookService(db, storage)
+    service = BookService(db, storage, redis)
     await service.reject_book(book_id, payload.reason, current_user)
     return SuccessResponse(data={"message": "Book rejected."})
