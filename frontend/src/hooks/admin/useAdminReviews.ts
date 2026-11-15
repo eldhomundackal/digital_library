@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { apiClient, getApiError } from '@/api/client'
+import { api, apiClient, getApiError } from '@/api/client'
 import type { ReviewResponse } from '@/types/review'
 import type { PaginatedResponse } from '@/types/common'
 
@@ -13,13 +13,7 @@ interface AdminReviewsParams {
 export function useAdminReviews(params: AdminReviewsParams = {}) {
   return useQuery({
     queryKey: ['admin', 'reviews', params],
-    queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<ReviewResponse>>(
-        '/admin/reviews/',
-        { params },
-      )
-      return data
-    },
+    queryFn: () => api.get<PaginatedResponse<ReviewResponse>>('/admin/reviews/', { params }),
   })
 }
 

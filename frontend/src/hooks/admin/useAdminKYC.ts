@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { apiClient, getApiError } from '@/api/client'
+import { api, apiClient, getApiError } from '@/api/client'
 import type { KYCResponse } from '@/types/kyc'
 import type { PaginatedResponse } from '@/types/common'
 
@@ -13,23 +13,14 @@ interface KYCListParams {
 export function useAdminKYCList(params: KYCListParams = {}) {
   return useQuery({
     queryKey: ['admin', 'kyc', params],
-    queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<KYCResponse>>(
-        '/admin/kyc/',
-        { params },
-      )
-      return data
-    },
+    queryFn: () => api.get<PaginatedResponse<KYCResponse>>('/admin/kyc/', { params }),
   })
 }
 
 export function useAdminKYCDetail(kycId: string) {
   return useQuery({
     queryKey: ['admin', 'kyc', kycId],
-    queryFn: async () => {
-      const { data } = await apiClient.get<KYCResponse>(`/admin/kyc/${kycId}/`)
-      return data
-    },
+    queryFn: () => api.get<KYCResponse>(`/admin/kyc/${kycId}/`),
     enabled: !!kycId,
   })
 }

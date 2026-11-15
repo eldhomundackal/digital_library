@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { apiClient, getApiError } from '@/api/client'
+import { api, apiClient, getApiError } from '@/api/client'
 import type { BookDetailResponse, BookListItem } from '@/types/book'
 import type { PaginatedResponse } from '@/types/common'
 
@@ -15,23 +15,14 @@ interface AdminBooksParams {
 export function useAdminBooks(params: AdminBooksParams = {}) {
   return useQuery({
     queryKey: ['admin', 'books', params],
-    queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<BookListItem>>(
-        '/admin/books/',
-        { params },
-      )
-      return data
-    },
+    queryFn: () => api.get<PaginatedResponse<BookListItem>>('/admin/books/', { params }),
   })
 }
 
 export function useAdminBookDetail(bookId: string) {
   return useQuery({
     queryKey: ['admin', 'book', bookId],
-    queryFn: async () => {
-      const { data } = await apiClient.get<BookDetailResponse>(`/admin/books/${bookId}/`)
-      return data
-    },
+    queryFn: () => api.get<BookDetailResponse>(`/admin/books/${bookId}/`),
     enabled: !!bookId,
   })
 }

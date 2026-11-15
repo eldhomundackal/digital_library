@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { apiClient, getApiError } from '@/api/client'
+import { api, apiClient, getApiError } from '@/api/client'
 import type { AdminUserItem } from '@/types/admin'
 import type { PaginatedResponse } from '@/types/common'
 
@@ -15,23 +15,14 @@ interface AdminUsersParams {
 export function useAdminUsers(params: AdminUsersParams = {}) {
   return useQuery({
     queryKey: ['admin', 'users', params],
-    queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<AdminUserItem>>(
-        '/admin/users/',
-        { params },
-      )
-      return data
-    },
+    queryFn: () => api.get<PaginatedResponse<AdminUserItem>>('/admin/users/', { params }),
   })
 }
 
 export function useAdminUser(userId: string) {
   return useQuery({
     queryKey: ['admin', 'user', userId],
-    queryFn: async () => {
-      const { data } = await apiClient.get<AdminUserItem>(`/admin/users/${userId}/`)
-      return data
-    },
+    queryFn: () => api.get<AdminUserItem>(`/admin/users/${userId}/`),
     enabled: !!userId,
   })
 }
