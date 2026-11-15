@@ -25,8 +25,7 @@ async def list_books(
     """List all books across all statuses."""
     storage = get_storage_provider()
     service = BookService(db, storage, redis)
-    filters = {"status": status} if status else {}
-    result = await service.list_approved_books(filters, params.page, params.limit)
+    result = await service.admin_list_books(status, params.page, params.limit)
     return SuccessResponse(data=result)
 
 
@@ -42,6 +41,20 @@ async def get_book(
     service = BookService(db, storage, redis)
     result = await service.get_book_detail(book_id, current_user)
     return SuccessResponse(data=result)
+
+
+@router.delete("/{book_id}")
+async def delete_book(
+    book_id: str,
+    current_user=Depends(require_roles(*_STAFF_ROLES)),
+    db: AsyncSession = Depends(get_db),
+    redis=Depends(get_redis),
+) -> SuccessResponse:
+    """Soft-delete a book."""
+    storage = get_storage_provider()
+    service = BookService(db, storage, redis)
+    await service.admin_delete_book(book_id, current_user)
+    return SuccessResponse(data={"message": "Book deleted."})
 
 
 @router.post("/{book_id}/approve")

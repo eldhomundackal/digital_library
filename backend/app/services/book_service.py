@@ -549,6 +549,98 @@ class BookService:
         book, version = await self._load_book_and_verify_owner(book_uuid, user)
         return await self._build_book_detail(book, version, user)
 
+    async def admin_list_books(
+        self, status: str | None, page: int, limit: int
+    ) -> PaginatedResponse:
+        """List all books platform-wide (admin), optionally filtered by status."""
+        query = (
+            select(BookVersion)
+            .join(Book, Book.id == BookVersion.book_id)
+            .where(BookVersion.is_current.is_(True))
+        )
+        if status:
+            query = query.where(BookVersion.status == status.upper())
+
+        count_q = select(func.count()).select_from(query.subquery())
+        total = (await self.db.execute(count_q)).scalar() or 0
+
+        offset = (page - 1) * limit
+        result = await self.db.execute(query.order_by(Book.created_at.desc()).offset(offset).limit(limit))
+        versions = result.scalars().all()
+
+        items = []
+        for version in versions:
+            book_result = await self.db.execute(select(Book).where(Book.id == version.book_id))
+            book = book_result.scalar_one()
+            await self.db.refresh(book, ["category", "language", "publisher", "book_authors"])
+            pub = book.publisher
+            pub_user_result = await self.db.execute(select(User).where(User.id == pub.user_id))
+            pub_user = pub_user_result.scalar_one()
+            authors = []
+            for ba in book.book_authors:
+                a_result = await self.db.execute(select(Author).where(Author.id == ba.author_id))
+                author = a_result.scalar_one()
+                authors.append(AuthorSummary(
+                    author_id=str(author.uuid),
+                    first_name=author.first_name,
+                    last_name=author.last_name,
+                    avatar=author.avatar,
+                ))
+            items.append(BookListItem(
+                book_id=str(book.uuid),
+                title=version.title,
+                thumbnail=version.thumbnail,
+                description=version.description,
+                category=CategorySummary(
+                    category_id=str(book.category.uuid),
+                    name=book.category.name,
+                    slug=book.category.slug,
+                ),
+                authors=authors,
+                publisher=PublisherSummary(
+                    publisher_id=str(pub_user.uuid),
+                    display_name=pub.display_name,
+                    logo=pub.logo,
+                    is_verified=pub.is_verified,
+                ),
+                language=LanguageSummary(
+                    language_id=str(book.language.uuid),
+                    name=book.language.name,
+                    iso_code=book.language.iso_code,
+                ),
+                average_rating=float(book.average_rating),
+                total_ratings=book.total_ratings,
+                total_downloads=book.total_downloads,
+                publication_year=version.publication_year,
+                created_at=book.created_at.isoformat() if book.created_at else "",
+            ))
+        return PaginatedResponse(
+            items=items,
+            total=total,
+            page=page,
+            limit=limit,
+            pages=compute_pages(total, limit),
+        )
+
+    async def admin_delete_book(self, book_uuid: str, admin: User) -> None:
+        """Soft-delete a book (admin only) — sets is_active=False and status=ARCHIVED."""
+        result = await self.db.execute(select(Book).where(Book.uuid == book_uuid))
+        book = result.scalar_one_or_none()
+        if not book:
+            raise HTTPException(status_code=404, detail="Book not found.")
+        version_result = await self.db.execute(
+            select(BookVersion).where(BookVersion.book_id == book.id, BookVersion.is_current.is_(True))
+        )
+        version = version_result.scalar_one_or_none()
+        book.is_active = False
+        if version:
+            version.status = "ARCHIVED"
+            version.archived_at = datetime.now(timezone.utc)
+        await self.db.commit()
+        await invalidate(self.redis, f"cache:book:{book_uuid}")
+        await invalidate_pattern(self.redis, "cache:books:*")
+        await audit_action(self.db, "BOOK_DELETED", admin, "book", book.id, book_uuid)
+
     async def list_approved_books(
         self, filters: dict, page: int, limit: int
     ) -> PaginatedResponse:
