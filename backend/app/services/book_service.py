@@ -405,6 +405,7 @@ class BookService:
         await invalidate_pattern(self.redis, "cache:books:*")
         await invalidate(self.redis, CACHE_CATEGORIES_KEY)
 
+        await self.db.refresh(book, ["publisher"])
         pub_user_result = await self.db.execute(
             select(User).where(User.id == book.publisher.user_id)
         )
