@@ -3,10 +3,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.dependencies import get_db, require_roles
+from app.core.dependencies import PaginationParams, get_db, require_roles
 from app.schemas.common import SuccessResponse
 from app.services.admin_service import AdminService
-from app.utils.pagination import PaginationParams
 
 router = APIRouter(prefix="/admin", tags=["Admin Audit"])
 
@@ -30,7 +29,7 @@ class AuditFilters:
         self.to_date = to_date
 
 
-@router.get("/audit-log")
+@router.get("/audit")
 async def get_audit_log(
     filters: AuditFilters = Depends(),
     pagination: PaginationParams = Depends(),

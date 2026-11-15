@@ -14,6 +14,7 @@ from app.api.v1 import users
 from app.api.v1 import utils
 from app.api.v1 import reviews
 from app.api.v1.admin import activity as admin_activity
+from app.api.v1.admin import audit as admin_audit
 from app.api.v1.admin import analytics as admin_analytics
 from app.api.v1.admin import authors as admin_authors
 from app.api.v1.admin import dashboard as admin_dashboard
@@ -60,5 +61,6 @@ api_router.include_router(admin_authors.router)
 api_router.include_router(admin_reviews.router)
 api_router.include_router(admin_analytics.router)
 api_router.include_router(admin_activity.router)
+api_router.include_router(admin_audit.router)
 api_router.include_router(admin_dashboard.router)
 api_router.include_router(admin_notifications.router)
