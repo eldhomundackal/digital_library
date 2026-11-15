@@ -280,7 +280,14 @@ class KYCService:
         from app.tasks.notification_tasks import create_in_app_notification
 
         send_kyc_status_email.delay(str(user.uuid), "submitted")
-        create_in_app_notification.delay(str(user.uuid), "KYC_SUBMITTED")
+        create_in_app_notification.delay(
+            user_id=str(user.uuid),
+            notification_type="KYC_SUBMITTED",
+            group_key=f"KYC_SUBMITTED:{user.uuid}",
+            title="KYC Submitted",
+            message="Your KYC documents have been submitted for review.",
+            data={},
+        )
 
     async def resubmit_documents(
         self, files: dict[str, UploadFile], user: User
@@ -331,7 +338,14 @@ class KYCService:
 
         from app.tasks.notification_tasks import create_in_app_notification
 
-        create_in_app_notification.delay(str(user.uuid), "KYC_RESUBMITTED")
+        create_in_app_notification.delay(
+            user_id=str(user.uuid),
+            notification_type="KYC_RESUBMITTED",
+            group_key=f"KYC_RESUBMITTED:{user.uuid}",
+            title="KYC Resubmitted",
+            message="Your KYC documents have been resubmitted for review.",
+            data={},
+        )
 
     async def approve_kyc(self, kyc_id: str, admin: User) -> None:
         """Approve a KYC application."""
@@ -370,7 +384,14 @@ class KYCService:
         )
         publisher_user = publisher_user_result.scalar_one()
         send_kyc_status_email.delay(str(publisher_user.uuid), "approved")
-        create_in_app_notification.delay(str(publisher_user.uuid), "KYC_APPROVED")
+        create_in_app_notification.delay(
+            user_id=str(publisher_user.uuid),
+            notification_type="KYC_APPROVED",
+            group_key=f"KYC_APPROVED:{publisher_user.uuid}",
+            title="KYC Approved",
+            message="Your KYC application has been approved.",
+            data={},
+        )
         await audit_action(self.db, "KYC_APPROVED", admin, "kyc_application", kyc.id, kyc_id)
 
     async def reject_kyc(self, kyc_id: str, reason: str, admin: User) -> None:

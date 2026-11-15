@@ -355,7 +355,14 @@ class BookService:
 
         from app.tasks.notification_tasks import create_in_app_notification
 
-        create_in_app_notification.delay(str(user.uuid), "BOOK_SUBMITTED")
+        create_in_app_notification.delay(
+            user_id=str(user.uuid),
+            notification_type="BOOK_SUBMITTED",
+            group_key=f"BOOK_SUBMITTED:{book_uuid}",
+            title="Book Submitted",
+            message="Your book has been submitted for review.",
+            data={"book_id": book_uuid},
+        )
 
     async def approve_book(self, book_uuid: str, admin: User) -> None:
         """Approve a book version and set it as current."""
@@ -415,7 +422,14 @@ class BookService:
         from app.tasks.notification_tasks import create_in_app_notification
 
         send_book_status_email.delay(str(pub_user.uuid), "approved", str(book.uuid))
-        create_in_app_notification.delay(str(pub_user.uuid), "BOOK_APPROVED")
+        create_in_app_notification.delay(
+            user_id=str(pub_user.uuid),
+            notification_type="BOOK_APPROVED",
+            group_key=f"BOOK_APPROVED:{book_uuid}",
+            title="Book Approved",
+            message="Your book has been approved and is now live.",
+            data={"book_id": book_uuid},
+        )
         await audit_action(self.db, "BOOK_APPROVED", admin, "book", book.id, book_uuid)
 
     async def reject_book(self, book_uuid: str, reason: str, admin: User) -> None:
@@ -460,7 +474,14 @@ class BookService:
         from app.tasks.notification_tasks import create_in_app_notification
 
         send_book_status_email.delay(str(pub_user.uuid), "rejected", str(book.uuid))
-        create_in_app_notification.delay(str(pub_user.uuid), "BOOK_REJECTED")
+        create_in_app_notification.delay(
+            user_id=str(pub_user.uuid),
+            notification_type="BOOK_REJECTED",
+            group_key=f"BOOK_REJECTED:{book_uuid}",
+            title="Book Rejected",
+            message="Your book submission has been rejected.",
+            data={"book_id": book_uuid, "reason": reason},
+        )
         await audit_action(self.db, "BOOK_REJECTED", admin, "book", book.id, book_uuid)
 
     async def archive_book(self, book_uuid: str, user: User) -> None:
