@@ -574,9 +574,16 @@ class ReviewService:
             )
         )
         reviews = result.scalars().all()
+        items = []
+        for review in reviews:
+            rating_result = await self.db.execute(
+                select(Rating).where(Rating.id == review.rating_id)
+            )
+            rating = rating_result.scalar_one()
+            items.append(await self._build_review_response(review, rating))
         return {
             "total": len(reviews),
-            "items": [await self._build_review_response(r) for r in reviews],
+            "items": items,
         }
 
     async def list_reported_reviews(self, status: str | None = None) -> dict:
