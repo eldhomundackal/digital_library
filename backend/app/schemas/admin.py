@@ -54,7 +54,7 @@ class AuditLogResponse(BaseModel):
 
     audit_id: str
     action: str
-    performed_by: UserSummary
+    performed_by: str
     target: AuditTarget
     metadata: dict | None
     note: str | None

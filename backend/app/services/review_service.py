@@ -321,7 +321,7 @@ class ReviewService:
 
         return ReplyResponse(
             reply_id=str(reply.uuid),
-            user=UserSummary(user_id=str(user.uuid), email=user.email),
+            user=UserSummary(user_id=str(user.uuid), email=user.email, role=user.role, is_first_login=user.is_first_login),
             comment=reply.comment,
             is_publisher_response=reply.is_publisher_response,
             is_edited=reply.is_edited,
@@ -352,7 +352,7 @@ class ReviewService:
         await self.db.refresh(reply)
         return ReplyResponse(
             reply_id=str(reply.uuid),
-            user=UserSummary(user_id=str(user.uuid), email=user.email),
+            user=UserSummary(user_id=str(user.uuid), email=user.email, role=user.role, is_first_login=user.is_first_login),
             comment=reply.comment,
             is_publisher_response=reply.is_publisher_response,
             is_edited=reply.is_edited,

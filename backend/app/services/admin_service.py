@@ -23,7 +23,7 @@ from app.schemas.admin import (
     PlatformOverview,
     RecentActivity,
 )
-from app.schemas.auth import UserSummary
+
 from app.schemas.common import PaginatedResponse
 from app.utils.pagination import compute_pages
 
@@ -228,11 +228,7 @@ class AdminService:
                 AuditLogResponse(
                     audit_id=str(log.uuid),
                     action=log.action,
-                    performed_by=UserSummary(
-                        user_id=str(performed_by.uuid) if performed_by else "",
-                        email=performed_by.email if performed_by else "",
-                        role=performed_by.role if performed_by else "",
-                    ),
+                    performed_by=performed_by.email if performed_by else "",
                     target=AuditTarget(
                         type=log.target_type,
                         id=str(log.target_id),
