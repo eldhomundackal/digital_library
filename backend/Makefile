@@ -3,6 +3,9 @@ EXEC = docker compose exec api
 dev:
 	docker compose up --build
 
+up:
+	docker compose up
+
 test:
 	docker compose -f docker-compose.test.yml run --rm api pytest
 
